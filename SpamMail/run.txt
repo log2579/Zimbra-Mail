@@ -1,0 +1,18 @@
+#!/bin/bash
+
+INCOMING_FOLDER="/opt/zimbra/store/0"
+
+COPY_FOLDER="/home/hlog/Desktop/processing"
+
+inotifywait -m -r -e create --format "%w%f" "$INCOMING_FOLDER" |
+while read file; do
+    if [ -f "$file" ]; then
+        if [[ $(basename "$file") > "7000-" && $(basename "$file") < *.msg ]]; then
+            echo "admin notification"
+        else
+            if grep -q "X-Spam-Flag" "$file"; then
+                cp "$file" "$COPY_FOLDER"
+            fi
+        fi
+    fi
+done

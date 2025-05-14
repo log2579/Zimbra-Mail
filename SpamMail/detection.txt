@@ -1,0 +1,11 @@
+#!/bin/bash
+
+CAPTURE_FOLDER="/home/hlog/Desktop/processing"
+
+SAVE_FOLDER="/home/hlog/Desktop/result"
+
+inotifywait -m -e create "$CAPTURE_FOLDER" |
+while read file; do
+    python3 processing.py "$file" >> "$SAVE_FOLDER/log.txt"
+    echo "=========================================" >> "$SAVE_FOLDER/log.txt"
+done
