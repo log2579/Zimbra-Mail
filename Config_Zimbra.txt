@@ -1,0 +1,62 @@
+sudo su
+apt install openssh-server
+ufw allow ssh
+ssh status
+
+sudo nano /etc/hostname
+mail.example.com
+
+sudo nano /etc/hosts
+192.168.110.xxx mail.example.com mail
+
+systemctl disable systemd-resolved
+systemctl stop systemd-resolved
+rm -f /etc/resolv.conf
+nano /etc/resolv.conf
+nameserver 8.8.8.8
+
+apt install dnsmasq
+
+nano /etc/dnsmasq
+server=192.168.110.xxx
+domain=example.com
+mx-host=example.com, mail.example.com, 5
+mx-host=mail.example.com, mail.example.com, 5
+listen-address=127.0.0.1
+
+systemctl restart dnsmasq
+
+ssh hlog@192.168.110.xxx
+
+sudo su
+wget https://files.zimbra.com/downloads/8.8.15_GA/zcs-8.8.15_GA_4179.UBUNTU20_64.20211118033954.tgz
+(https://files.zimbra.com/downloads/10.0.0_GA/zcs-NETWORK-10.0.0_GA_4518.UBUNTU20_64.20230301065514.tgz   )
+
+tar xvf zcs-8.8.15_GA_4179.UBUNTU20_64.20211118033954.tgz
+
+cd {zimbra_file}
+
+./install
+# step to setup
+
+Install zimbra-dnscache [Y] N
+Install zimbra-archiving [N]
+
+
+7
+4
+123456
+r
+5
+2
+8.8.8.8
+r
+Final step, we just need to install our ZCSlicense.xml (which Vmware Zimbra Sales) will sent yo you viaemail. Type in 25 then key in the path that you kept the license file.
+a 
+yes
+
+
+zimbra@mail zmupdateauthkeys
+root@mail /opt/zimbra/libexec/zmsyslogsetup
+
+DONE
