@@ -1,0 +1,152 @@
+apt-get -y install screen wget
+screen
+
+apt update
+apt upgrade
+
+date -R
+apt remove ntp
+apt-get install chrony
+systemctl start chronyd
+systemctl enable chronyd
+timedatectl set-timezone asia/ho_chi_minh
+
+# turn off postfix, apparmor, network manager
+systemctl stop postfix
+systemctl disable postfix
+systemctl stop apparmor
+systemctl disable apparmor
+systemctl stop NetworkManager
+systemctl disable NetworkManager
+
+#cài gói yêu cầu zimbra
+apt-get install netcat
+apt-get install libreoffice
+
+# Cấu hình các thông số như IP, subnet, gateway, dns
+nano /etc/netplan/01-netcfg.yaml
+network:
+  version: 2
+   ethernets:
+    eth0:
+      addresses: [172.10.10.100/24]
+      gateway4: 172.10.10.2
+      nameservers:
+       addresses: [8.8.8.8, 9.9.9.9]
+      dhcp4: false
+      dhcp6: false
+      match:
+       macaddress: 02:99:44:66:9d:aa #(change mac)
+      set-name: eth0
+
+#apply and check
+netplan apply
+ip a
+
+# tắt ipv6 and giảm swappiness
+nano /etc/sysctl.conf
+# Turn off IPv6
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1
+# Name the NIC explicitly; seems to be required on Ubuntu 20:
+net.ipv6.conf.ens5.disable_ipv6 = 1
+# Reduce Swappiness
+vm.swappiness = 1
+
+#apply
+sysctl -p
+
+# edit grub
+/etc/default/grub
+GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1"
+GRUB_CMDLINE_LINUX="ipv6.disable=1"
+
+#apply and reboot
+update-grub
+reboot
+
+# config hostname
+hostnamectl set-hostname mail.example.com
+nano /etc/hosts
+127.0.0.1 localhost.localdomain localhost
+172.10.10.100 mail.example.com mail
+#ipv6 (comment out ipv6). Không dùng ipv6
+#Thay 172.10.10.100 bằng IP local của máy chủ
+
+# config firewall
+apt-get update && apt-get install ufw
+ufw default allow outgoing
+ufw allow ssh
+ufw allow 25/tcp
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw allow 587/tcp
+ufw allow 993/tcp
+ufw allow 995/tcp
+ufw allow 9071/tcp
+ufw allow 7071/tcp
+ufw allow 123/udp
+ufw allow 53/udp
+ufw enable
+ufw status numbered
+
+# edit before.rules
+/etc/ufw/before.rules
+#Comment 2 dòng như sau:
+
+# drop INVALID packets (logs these in loglevel medium and higher)
+# -A ufw-before-input -m conntrack --ctstate INVALID -j ufw-logging-deny
+# -A ufw-before-input -m conntrack --ctstate INVALID -j DROP
+
+# restart ufw
+service ufw restart && service ufw status
+
+================================================================================
+
+#install dnsmasq
+apt-get install dnsmasq
+
+#config dnsmasq.conf
+nano /etc/dnsmasq.conf
+server=9.9.9.9
+server=8.8.8.8
+listen-address=127.0.0.1
+domain=example.com
+address=/mail.example.com/172.10.10.100
+ptr-record=100.10.10.172.in-addr.arpa., mail.example.com
+mx-host=example.com, mail.example.com, 10
+addn-hosts=/etc/hosts
+cache-size=9500
+
+# config dns netplan
+nano /etc/netplan/01-netcfg.yaml (check name of file)
+# Đổi IP của dns về 127.0.0.1
+
+# apply
+netplan apply
+ip a
+
+# disable systemd-resolved
+systemctl disable systemd-resolved
+systemctl stop systemd-resolved
+unlink /etc/resolv.conf
+nano /etc/resolv.conf
+nameserver 127.0.0.1
+
+# check dns
+systemctl start dnsmasq
+systemctl enable dnsmasq
+systemctl status dnsmasq
+dig mx example.com
+dig mail.example.com
+dig -x 172.10.10.100
+
+==================================================================
+(zimbra user)
+zmaccts
+
+zmcontrol -v (version)
+zmvolume --list
+
+
