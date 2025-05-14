@@ -1,0 +1,187 @@
+Document install:
+https://techiescode.com/how-to-install-zimbra-mail-server-in-ubuntu-20-0418-0416-04/
+https://techiescode.com/best-way-how-to-install-and-configure-dnsmasq-in-ubuntu-22-0420-0418-04/
+https://www.tecmint.com/install-zimbra-collaboration-suite-on-centos-rhel/
+
+postscreen
+architecture
+
+https://zimbra.github.io/adminguide/8.8.11/adminguide-8.8.11.pdf
+current page 61
+
+admin console
+htps://mail.example.com:7071
+admin@example.com
+123456
+
+=====================================================================
+dns cache not running ///don't install in init config ./install if use DNS
+netstat -nltp | grep 53
+(port 53 đang bị dịch vụ dnsmasq sử dụng nên sẽ báo lỗi. thực hiện stop dịch vụ này đi để dịch vụ dnscache trên zimbra sử dụng)
+
+systemctl stop dnsmasq
+systemctl disable dnsmasq
+
+su - zimbra -c "zmcontrol stop"
+su - zimbra -c "zmcontrol start"
+
+su - zimbra -c "zmcontrol status"
+
+=======================================================================
+/opt/zimbra/log/mailbox.log
+
+/var/log/zimbra.log
+
+==========================================================
+https://zimico.vn/cau-hinh-dns-server-cho-zimbra/
+https://zimico.vn/cai-dat-zimbra-10-single-server-tren-ubuntu-20/
+
+==============================================
+https://zimbra.github.io/adminguide/latest/index.html#_architectural_overview
+
+https://docs.mithi.com/home/faqs-on-secure-mail-flow-service-in-skyconnect
+
+https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DTvA8HMLd2fs&psig=AOvVaw0MdVRCuQzStl1CQvmg0fOv&ust=1711094771845000&source=images&cd=vfe&opi=89978449&ved=2ahUKEwjLytjx8oSFAxVNTPUHHdzSA1QQr4kDegUIARC0AQ
+====================================
+
+DNS
+https://medium.com/m/global-identity-2?redirectUrl=https%3A%2F%2Finfosecwriteups.com%2Fdns-in-active-directory-dcb93b10c3f3
++ ?
++ Components
++ how work ?
+
+
+https://wiki.zimbra.com/wiki/Category:Certified
+
+Mail Forwarding or Aliasing #done
+https://community.zextras.com/understanding-mail-forwarding-or-aliasing-in-zimbra/
+
+Managing the Spam Assassin Score:
+sử dụng giá trị phần trăm để xác định "mức độ spam" dựa trên điểm SpamAssassin là 20 là 100%. Bất kỳ thư nào được gắn thẻ từ 33%-75% đều bị coi là thư rác và được chuyển đến thư mục rác của người dùng. Những thư được gắn thẻ trên 75% luôn bị coi là thư rác và bị loại bỏ.
+cat /var/log/mail.log
+https://community.zextras.com/how-to-work-with-spamassassin-in-carbonio-community-edition-carbonio-ce/
+
+# My Config Assassin
+
+#body LOCAL_RULE /lorem/i
+#describe LOCAL_RULE Test Spam Assassin rules
+#score 4.123
+
+su zimbra
+zmmtactl restart && zmamavisdctl restart
+
+https://forums.zimbra.org/viewtopic.php?t=66416
+https://wiki.zimbra.com/wiki/Improving_Anti-spam_system
+
+Class of Service and Accounts
++ Quota
++ configure password policy
++ configure login policy (fail to login)
++ 2FA
+
+Customizing Accounts
++ Email Features
++ 
+
+
+Setting Up Zimbra Tasks
+
+Enable Sharing
+
+Adding Words to Spell Dictionary
+
+HAB
+zmprov createHABOrgUnit example.com ZimbraMail
+
+zmprov createHABGroup MAINOFFICE ZimbraMail mainoffice@example.com
+
+zmprov createHABGroup IT ZimbraMail groupit@example.com
+zmprov createHABGroup SALES ZimbraMail groupsales@example.com
+zmprov createHABGroup DEVELOPMENT ZimbraMail groupdevelopment@example.com
+zmprov createHABGroup ADMIN ZimbraMail groupadmin@example.com
+
+zmprov addHABGroupMember groupit@example.com groupdevelopment@example.com
+zmprov addHABGroupMember groupit@example.com groupadmin@example.com
+
+zmprov addHABGroupMember mainoffice@example.com groupit@example.com
+zmprov addHABGroupMember mainoffice@example.com groupsales@example.com
+
+zmprov addHABGroupMember groupdevelopment@example.com userdev@example.com
+zmprov addHABGroupMember groupadmin@example.com adminit@example.com
+zmprov addHABGroupMember groupit@example.com adminit@example.com
+zmprov addHABGroupMember mainoffice@example.com ceo@example.com
+zmprov addHABGroupMember groupsales@example.com usersales@example.com
+zmprov addHABGroupMember groupadmin@example.com adminsales@example.com
+zmprov addHABGroupMember groupsales@example.com adminsales@example.com
+
+zmprov gdl mainoffice@example.com zimbraId 
+zmprov md 'example.com' zimbraHierarchicalAddressBookRoot 
+
+Working with Distribution Lists
+Tạo Distribution List
+zmprov CreateDistributionList dltest@example.com
+Xóa Distribution List
+zmprov DeleteDistributionList dltest@example.com
+Chỉnh sửa Distribution List
+zmprov ModifyDistributionList dltest@example.com
+Thêm member vào Distribution List
+zmprov AddDistributionListMember dltest@example.com user@example.com
+xóa member Distribution List
+zmprov RemoveDistributionListMember dltest@example.com user@example.com
+Xem member Distribution List 
+zmprov GetDistributionListMembership dltest@example.com
+Xem Distribution List hiện có
+zmprov GetAllDistributionLists
+Xem Distribution List
+zmprov GetDistributionList dltest@example.com
+Thêm Alias
+zmprov AddDistributionListAlias dltest@example.com distributionlist@example.com
+Xóa Alias
+zmprov RemoveDistributionListAlias dltest@example.com
+
+Zimbra Delegated Administrators
+https://blog.zimbra.com/2021/11/zimbra-skillz-create-zimbra-delegated-administrators/
+https://imanudin.net/2021/01/07/how-to-create-admin-delegation-in-zimbra-ose/
+https://wiki.zimbra.com/wiki/Ajcody-System-Documentation-For-Rights-Included-In-ZCS-Install
+
+Rights
+
+Zimlets
+https://wiki.zimbra.com/wiki/DevelopersGuide#Zimlet_Development_Guide
+https://github.com/Zimbra/zm-zimlet-guide
+
+Attachment Management
+
+DMARC
++ DKIM
++ SPF
+
+
+postfix located /opt/zimbra/common/conf/main.cf
+sendmail_path = /opt/zimbra/common/sbin/sendmail ???
+
+================
+data set
+https://github.com/MWiechmann/enron_spam_data/blob/master/enron_spam_data.zip
+
+https://www.kaggle.com/code/sherpalakpa18/email-spam-detection
+https://www.kaggle.com/code/zabihullah18/email-spam-detection
+================
+
+/opt/zimbra/store
+
+#!/bin/bash
+
+INCOMING_FOLDER="/opt/zimbra/store/incoming"
+
+inotifywait -m -e create "$INCOMING_FOLDER" | 
+while read path action file; do
+    cp "$INCOMING_FOLDER/$file" /home/hlog/Downloads
+done
+
+
+inotifywait -m -r -e create "/home/hlog/Desktop/mail" -o ga.msg
+
+377263666.285.1715509732555.JavaMail.zimbra@example.com
+
+1803844304.280.1715509717364.JavaMail.zimbra@example.com non
