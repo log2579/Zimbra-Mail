@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# $1 for user account
+# filename delegate-admin.sh
+
+#--------------------run file------------------------------ 
+# 
+# chmod +x /srv/delegate-admin.sh
+# use zimbra user
+# /srv/delegate-admin.sh $1
+
+DOMAIN='example.com'
+
+#---------------------admin view----------------------------
+
+zmprov ma $1 zimbraIsDelegatedAdminAccount TRUE
+zmprov ma $1 +zimbraAdminConsoleUIComponents DLListView
+zmprov ma $1 +zimbraAdminConsoleUIComponents accountListView
+zmprov ma $1 +zimbraAdminConsoleUIComponents aliasListView
+zmprov ma $1 +zimbraAdminConsoleUIComponents resourceListView
+
+#----------------------rights--------------------------------
+
+# DL Management
+zmprov grr domain $DOMAIN usr $1 +createDistributionList
+zmprov grr domain $DOMAIN usr $1 +addDistributionListMember
+zmprov grr domain $DOMAIN usr $1 +removeDistributionListMember
+zmprov grr domain $DOMAIN usr $1 +getDistributionListMembership
+zmprov grr domain $DOMAIN usr $1 +getDistributionList
+zmprov grr domain $DOMAIN usr $1 +modifyDistributionList
+zmprov grr domain $DOMAIN usr $1 +listDistributionList
+
+# Account Management
+zmprov grr domain $DOMAIN usr $1 +listAccount
+zmprov grr domain $DOMAIN usr $1 +renameAccount
+zmprov grr domain $DOMAIN usr $1 +setAccountPassword
+zmprov grr domain $DOMAIN usr $1 +listDomain
+zmprov grr domain $DOMAIN usr $1 +createAccount
+zmprov grr domain $DOMAIN usr $1 +getAccountInfo
+zmprov grr domain $DOMAIN usr $1 +getAccountMembership
+zmprov grr domain $DOMAIN usr $1 +setAccountPassword
+
+zmprov grr domain $DOMAIN usr $1 set.account.zimbraAccountStatus
+zmprov grr domain $DOMAIN usr $1 set.account.sn
+zmprov grr domain $DOMAIN usr $1 set.account.givenName
+zmprov grr domain $DOMAIN usr $1 set.account.displayName
+zmprov grr domain $DOMAIN usr $1 set.account.zimbraPasswordMustChange
+
+# Alias Managment
+zmprov grr domain $DOMAIN usr $1 +listAlias
+zmprov grr domain $DOMAIN usr $1 +deleteAlias
+zmprov grr domain $DOMAIN usr $1 createAlias
+zmprov grr domain $DOMAIN usr $1 listAlias
+zmprov grr domain $DOMAIN usr $1 addAccountAlias
+zmprov grr domain $DOMAIN usr $1 +removeAccountAlias
+
+# Calendar Resource Managment
+zmprov grr domain $DOMAIN usr $1 +createCalendarResource
+zmprov grr domain $DOMAIN usr $1 +listCalendarResource
+zmprov grr domain $DOMAIN usr $1 +getCalendarResource
+zmprov grr domain $DOMAIN usr $1 +getCalendarResourceInfo
+zmprov grr domain $DOMAIN usr $1 +modifyCalendarResource
